@@ -82,6 +82,74 @@ async function loadAdminApps() {
 }
 loadAdminApps();
 
+// ===== CUSTOM MODALS =====
+function createModalHTML() {
+    const overlay = document.createElement("div");
+    overlay.id = "customModalOverlay";
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+        <div class="modal-content">
+            <h3 class="modal-title" id="cbModalTitle">Alert</h3>
+            <p class="modal-body" id="cbModalBody">Message</p>
+            <div class="modal-actions" id="cbModalActions"></div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function showModal(title, msg, isConfirm = false) {
+    createModalHTML();
+    return new Promise((resolve) => {
+        const overlay = document.getElementById("customModalOverlay");
+        const titleEl = document.getElementById("cbModalTitle");
+        const bodyEl = document.getElementById("cbModalBody");
+        const actionsEl = document.getElementById("cbModalActions");
+
+        titleEl.innerText = title;
+        bodyEl.innerText = msg;
+        actionsEl.innerHTML = "";
+
+        const closeModal = (result) => {
+            overlay.classList.remove("active");
+            // small delay to let animation finish before resolving/removing focus
+            setTimeout(() => resolve(result), 250);
+        };
+
+        if (isConfirm) {
+            const cancelBtn = document.createElement("button");
+            cancelBtn.className = "btn";
+            cancelBtn.innerText = "Cancel";
+            cancelBtn.onclick = () => closeModal(false);
+
+            const confirmBtn = document.createElement("button");
+            confirmBtn.className = "btn btn-danger";
+            confirmBtn.style.background = "var(--danger)";
+            confirmBtn.style.color = "#fff";
+            confirmBtn.style.borderColor = "var(--danger)";
+            confirmBtn.innerText = "Confirm";
+            confirmBtn.onclick = () => closeModal(true);
+
+            actionsEl.appendChild(cancelBtn);
+            actionsEl.appendChild(confirmBtn);
+        } else {
+            const okBtn = document.createElement("button");
+            okBtn.className = "btn btn-primary";
+            okBtn.innerText = "OK";
+            okBtn.onclick = () => closeModal(true);
+            actionsEl.appendChild(okBtn);
+        }
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+            overlay.classList.add("active");
+        });
+    });
+}
+
+const customAlert = (msg, title = "Notice") => showModal(title, msg, false);
+const customConfirm = (msg, title = "Are you sure?") => showModal(title, msg, true);
+
+
 // ===== BUTTON LOADING HELPER =====
 function setLoading(btn, isLoading) {
     if (!btn) return;
@@ -120,7 +188,7 @@ if (form) {
             });
 
             if (res.status === 401) {
-                alert("Wrong password");
+                await customAlert("Wrong App Password provided.", "Authentication Error");
             } else {
                 form.reset();
                 document.getElementById("appId").value = "";
@@ -136,6 +204,9 @@ if (form) {
 async function deleteApp(id, btn) {
     const password = document.getElementById("adminPassword").value;
 
+    const isConfirmed = await customConfirm("Do you really want to delete this app? This action cannot be undone.", "Delete App");
+    if (!isConfirmed) return;
+
     setLoading(btn, true);
 
     try {
@@ -146,7 +217,7 @@ async function deleteApp(id, btn) {
         });
 
         if (res.status === 401) {
-            alert("Wrong password");
+            await customAlert("Wrong Admin Password.", "Authentication Error");
             setLoading(btn, false);
             return;
         }
@@ -190,7 +261,7 @@ if (accountsLogin) {
             });
 
             if (res.status === 401) {
-                alert("Incorrect Admin Password.");
+                await customAlert("Incorrect Admin Password.", "Access Denied");
                 return;
             }
 
@@ -229,8 +300,11 @@ if (accountsLogin) {
 }
 
 // ===== COPY ALL EMAILS =====
-window.copyAllEmails = (btn) => {
-    if (window.allEmails.length === 0) return alert("No emails to copy.");
+window.copyAllEmails = async (btn) => {
+    if (window.allEmails.length === 0) {
+        await customAlert("There are no emails to copy yet.", "Empty Vault");
+        return;
+    }
     navigator.clipboard.writeText(window.allEmails.join("\\n"));
     const old = btn.innerText;
     btn.innerText = "Copied " + window.allEmails.length + " emails! ✓";
@@ -301,7 +375,10 @@ if (accountForm) {
         const emails = document.getElementById("bulkEmails").value;
         const adminPwd = document.getElementById("adminPassword").value;
 
-        if (!adminPwd) return alert("Enter Admin Password at the top first!");
+        if (!adminPwd) {
+            await customAlert("Please enter the Admin Password at the top of the page first.", "Missing Password");
+            return;
+        }
 
         setLoading(btn, true);
 
@@ -313,12 +390,12 @@ if (accountForm) {
             });
 
             if (res.status === 401) {
-                alert("Wrong Admin Password");
+                await customAlert("Wrong Admin Password.", "Authentication Error");
             } else if (res.status === 500) {
-                alert("Server error — checking database connection.");
+                await customAlert("Server error. Check your database connection.", "Internal Error");
             } else {
                 const data = await res.json();
-                alert(`Successfully added ${data.count} emails!`);
+                await customAlert(`Successfully added ${data.count} emails to the vault!`, "Success");
                 accountForm.reset();
                 await loadAdminAccounts();
             }
@@ -331,9 +408,13 @@ if (accountForm) {
 // ===== DELETE EMAIL =====
 async function deleteAccount(id, btn) {
     const password = document.getElementById("adminPassword").value;
-    if (!password) return alert("Enter Admin Password at the top first!");
+    if (!password) {
+        await customAlert("Enter the Admin Password at the top first!", "Missing Password");
+        return;
+    }
 
-    if (!confirm("Delete this email?")) return;
+    const isConfirmed = await customConfirm("Are you sure you want to delete this email?", "Delete Email");
+    if (!isConfirmed) return;
 
     setLoading(btn, true);
 
@@ -345,7 +426,7 @@ async function deleteAccount(id, btn) {
         });
 
         if (res.status === 401) {
-            alert("Wrong password");
+            await customAlert("Wrong password.", "Authentication Error");
             setLoading(btn, false);
             return;
         }
