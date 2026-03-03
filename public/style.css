@@ -86,10 +86,23 @@ body {
     display: inline-block;
     white-space: nowrap;
     padding-left: 100%;
-    animation: scroll 20s linear infinite;
+    /* Combine the scroll right-to-left with a color/glow pulse */
+    animation: scroll 20s linear infinite, pulseAlert 2s ease-in-out infinite alternate;
     font-size: 0.8rem;
-    color: #ff5f5f;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+@keyframes pulseAlert {
+    0% {
+        color: #ff5f5f;
+        text-shadow: 0 0 4px rgba(255, 95, 95, 0.4);
+    }
+
+    100% {
+        color: #ff2a2a;
+        text-shadow: 0 0 12px rgba(255, 42, 42, 0.9), 0 0 20px rgba(255, 42, 42, 0.4);
+    }
 }
 
 .header-right {
