@@ -18,7 +18,8 @@
         </div>
         <div class="header-right">
             <button id="themeToggle" title="Toggle theme">🌙</button>
-            <a href="/">Home</a>
+            <a href="/">Apps</a>
+            <a href="/accounts">Accounts</a>
         </div>
     </header>
 
@@ -31,7 +32,7 @@
                 <input type="password" id="adminPassword" placeholder="Enter password…">
             </div>
 
-            <!-- Add / Edit Form -->
+            <!-- ===== APPS SECTION ===== -->
             <div>
                 <div class="section-header">
                     <h2>Add / Edit App</h2>
@@ -49,12 +50,42 @@
                 </div>
             </div>
 
-            <!-- Manage Apps -->
             <div>
                 <div class="section-header">
                     <h2>Manage Apps</h2>
                 </div>
                 <div id="adminApps" class="grid"></div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+
+            <!-- ===== ACCOUNTS SECTION ===== -->
+            <div>
+                <div class="section-header">
+                    <h2>Add Emails (Bulk)</h2>
+                </div>
+                <div class="card">
+                    <form id="accountForm">
+                        <div class="form-row">
+                            <label for="bulkEmails"
+                                style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 2px;">Paste emails
+                                (separated by commas or newlines)</label>
+                            <textarea id="bulkEmails"
+                                placeholder="example1@gmail.com&#10;example2@yahoo.com&#10;example3@outlook.com"
+                                required
+                                style="width: 100%; min-height: 120px; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: monospace; font-size: 0.875rem; resize: vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary"
+                            style="background: var(--success); border-color: var(--success);">Save Emails</button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-header">
+                    <h2>Manage Accounts</h2>
+                </div>
+                <div id="adminAccounts" class="grid"></div>
             </div>
 
         </div>

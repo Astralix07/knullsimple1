@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNULL — Accounts</title>
+    <meta name="description" content="Private accounts vault.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="header-left">KNULL</div>
+        <div class="header-center">
+            <p>This is a private platform. Please avoid sharing or misusing the content.</p>
+        </div>
+        <div class="header-right">
+            <button id="themeToggle" title="Toggle theme">🌙</button>
+            <a href="/">Apps</a>
+            <a href="/admin">Admin</a>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <div class="page-title">Accounts Vault</div>
+
+        <!-- Password Prompt -->
+        <div id="accountsLogin" class="card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+            <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">
+                Enter admin password to decrypt accounts.
+            </p>
+            <form id="accountsAuthForm">
+                <input type="password" id="viewPassword" placeholder="Admin Password" required
+                    style="margin-bottom: 12px;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Unlock Accounts</button>
+            </form>
+        </div>
+
+        <!-- Accounts Grid (Hidden until auth) -->
+        <div id="accountsContainer" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.2rem; color: var(--text);">Saved Emails</h2>
+                <button id="copyAllBtn" class="btn btn-primary" onclick="copyAllEmails(this)">Copy All Emails</button>
+            </div>
+            <div id="loadingAccounts" class="loader-container">
+                <div class="loader"></div>
+            </div>
+            <div id="accounts" class="grid" style="grid-template-columns: 1fr;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

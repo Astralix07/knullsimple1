@@ -16,7 +16,7 @@ const db = createClient({
     authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// Create apps table if not exists
+// Create apps and accounts tables if not exist
 (async () => {
     await db.execute(`
     CREATE TABLE IF NOT EXISTS apps (
@@ -24,6 +24,13 @@ const db = createClient({
       name TEXT NOT NULL,
       description TEXT,
       link TEXT NOT NULL
+    );
+  `);
+
+    await db.execute(`
+    CREATE TABLE IF NOT EXISTS accounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL
     );
   `);
 })();
@@ -37,7 +44,11 @@ app.get("/admin", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// ===== API =====
+app.get("/accounts", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "accounts.html"));
+});
+
+// ===== API FOR APPS =====
 app.get("/apps", async (req, res) => {
     const result = await db.execute("SELECT * FROM apps ORDER BY id DESC");
     res.json(result.rows);
@@ -80,6 +91,69 @@ app.put("/edit/:id", async (req, res) => {
     await db.execute({
         sql: "UPDATE apps SET name = ?, description = ?, link = ? WHERE id = ?",
         args: [name, description, link, req.params.id],
+    });
+
+    res.json({ success: true });
+});
+
+// ===== API FOR EMAILS (ACCOUNTS) =====
+app.post("/accounts", async (req, res) => {
+    const { password } = req.body;
+
+    if (password !== process.env.ADMIN_PASSWORD)
+        return res.status(401).json({ error: "Unauthorized" });
+
+    const result = await db.execute("SELECT * FROM accounts ORDER BY id DESC");
+    res.json(result.rows);
+});
+
+app.post("/add-account", async (req, res) => {
+    const { emails, password } = req.body; // 'emails' is now a bulk string
+
+    if (password !== process.env.ADMIN_PASSWORD)
+        return res.status(401).json({ error: "Unauthorized" });
+
+    if (!emails) return res.status(400).json({ error: "No emails provided" });
+
+    // Split by comma, newline, or space, filter out empties, and insert
+    const emailArray = emails.split(/[\n, ]+/).map(e => e.trim()).filter(e => e.length > 0);
+
+    // Insert to DB using a transaction-like approach for Turso
+    const stmts = emailArray.map(email => ({
+        sql: "INSERT INTO accounts (email) VALUES (?)",
+        args: [email]
+    }));
+
+    if (stmts.length > 0) {
+        await db.batch(stmts, "write");
+    }
+
+    res.json({ success: true, count: stmts.length });
+});
+
+app.delete("/delete-account/:id", async (req, res) => {
+    const { password } = req.body;
+
+    if (password !== process.env.ADMIN_PASSWORD)
+        return res.status(401).json({ error: "Unauthorized" });
+
+    await db.execute({
+        sql: "DELETE FROM accounts WHERE id = ?",
+        args: [req.params.id],
+    });
+
+    res.json({ success: true });
+});
+
+app.put("/edit-account/:id", async (req, res) => {
+    const { label, email, accountPassword, recovery, notes, password } = req.body;
+
+    if (password !== process.env.ADMIN_PASSWORD)
+        return res.status(401).json({ error: "Unauthorized" });
+
+    await db.execute({
+        sql: "UPDATE accounts SET label = ?, email = ?, password = ?, recovery = ?, notes = ? WHERE id = ?",
+        args: [label, email, accountPassword, recovery, notes, req.params.id],
     });
 
     res.json({ success: true });
