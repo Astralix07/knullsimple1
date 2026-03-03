@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNULL — Admin Panel</title>
+    <meta name="description" content="Admin panel for managing the KNULL app vault.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="header-left">KNULL</div>
+        <div class="header-center">
+            <p>This is a private platform. Please avoid sharing or misusing the content.</p>
+        </div>
+        <div class="header-right">
+            <button id="themeToggle" title="Toggle theme">🌙</button>
+            <a href="/">Home</a>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <div class="admin-section">
+
+            <!-- Password Row -->
+            <div class="password-row">
+                <label for="adminPassword">Admin Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter password…">
+            </div>
+
+            <!-- Add / Edit Form -->
+            <div>
+                <div class="section-header">
+                    <h2>Add / Edit App</h2>
+                </div>
+                <div class="card">
+                    <form id="appForm">
+                        <input type="hidden" id="appId">
+                        <div class="form-row">
+                            <input type="text" id="name" placeholder="App name" required>
+                            <input type="text" id="description" placeholder="Short description">
+                            <input type="text" id="link" placeholder="Download link" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save App</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manage Apps -->
+            <div>
+                <div class="section-header">
+                    <h2>Manage Apps</h2>
+                </div>
+                <div id="adminApps" class="grid"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
