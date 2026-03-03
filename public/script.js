@@ -82,11 +82,26 @@ async function loadAdminApps() {
 }
 loadAdminApps();
 
+// ===== BUTTON LOADING HELPER =====
+function setLoading(btn, isLoading) {
+    if (!btn) return;
+    if (isLoading) {
+        btn.classList.add("loading");
+        btn.disabled = true;
+    } else {
+        btn.classList.remove("loading");
+        btn.disabled = false;
+    }
+}
+
 // ===== FORM SUBMIT =====
 const form = document.getElementById("appForm");
 if (form) {
     form.onsubmit = async (e) => {
         e.preventDefault();
+
+        const btn = form.querySelector('button[type="submit"]');
+        setLoading(btn, true);
 
         const id = document.getElementById("appId").value;
         const name = document.getElementById("name").value;
@@ -97,33 +112,49 @@ if (form) {
         const url = id ? `/edit/${id}` : `/add`;
         const method = id ? "PUT" : "POST";
 
-        const res = await fetch(url, {
-            method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, description, link, password })
-        });
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, description, link, password })
+            });
 
-        if (res.status === 401) return alert("Wrong password");
-
-        form.reset();
-        document.getElementById("appId").value = "";
-        loadAdminApps();
+            if (res.status === 401) {
+                alert("Wrong password");
+            } else {
+                form.reset();
+                document.getElementById("appId").value = "";
+                await loadAdminApps();
+            }
+        } finally {
+            setLoading(btn, false);
+        }
     };
 }
 
 // ===== DELETE APP =====
-async function deleteApp(id) {
+async function deleteApp(id, btn) {
     const password = document.getElementById("adminPassword").value;
 
-    const res = await fetch(`/delete/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password })
-    });
+    setLoading(btn, true);
 
-    if (res.status === 401) return alert("Wrong password");
+    try {
+        const res = await fetch(`/delete/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+        });
 
-    loadAdminApps();
+        if (res.status === 401) {
+            alert("Wrong password");
+            setLoading(btn, false);
+            return;
+        }
+
+        await loadAdminApps();
+    } catch (e) {
+        setLoading(btn, false);
+    }
 }
 
 // ===== COPY HELPER =====
@@ -141,49 +172,59 @@ const accountsLogin = document.getElementById("accountsAuthForm");
 if (accountsLogin) {
     accountsLogin.onsubmit = async (e) => {
         e.preventDefault();
+
+        const btn = accountsLogin.querySelector('button[type="submit"]');
+        setLoading(btn, true);
+
         const pwd = document.getElementById("viewPassword").value;
         const loading = document.getElementById("loadingAccounts");
         const container = document.getElementById("accounts");
 
         loading.style.display = "flex";
 
-        const res = await fetch("/accounts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password: pwd })
-        });
+        try {
+            const res = await fetch("/accounts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: pwd })
+            });
 
-        loading.style.display = "none";
+            if (res.status === 401) {
+                alert("Incorrect Admin Password.");
+                return;
+            }
 
-        if (res.status === 401) return alert("Incorrect Admin Password.");
+            const data = await res.json();
+            window.allEmails = data.map(acc => acc.email);
 
-        const data = await res.json();
-        window.allEmails = data.map(acc => acc.email);
+            document.getElementById("accountsLogin").style.display = "none";
+            document.getElementById("accountsContainer").style.display = "block";
 
-        document.getElementById("accountsLogin").style.display = "none";
-        document.getElementById("accountsContainer").style.display = "block";
+            container.innerHTML = "";
 
-        container.innerHTML = "";
+            if (data.length === 0) {
+                container.innerHTML = `<div class="empty-state">No emails stored yet.</div>`;
+                return;
+            }
 
-        if (data.length === 0) {
-            container.innerHTML = `<div class="empty-state">No emails stored yet.</div>`;
-            return;
+            data.forEach((acc, i) => {
+                const card = document.createElement("div");
+                card.className = "app-card";
+                card.style.animationDelay = `${i * 0.02}s`;
+                card.style.padding = "10px 16px";
+                card.style.display = "flex";
+                card.style.justifyContent = "space-between";
+                card.style.alignItems = "center";
+                card.innerHTML = `
+                    <span style="font-family: monospace; font-size: 0.95rem; user-select: all;">${esc(acc.email)}</span>
+                    <button class="copy-btn" title="Copy Email" onclick="copyText('${esc(acc.email)}', this)">📋 Copy</button>
+                `;
+                container.appendChild(card);
+            });
+        } finally {
+            loading.style.display = "none";
+            setLoading(btn, false);
         }
-
-        data.forEach((acc, i) => {
-            const card = document.createElement("div");
-            card.className = "app-card";
-            card.style.animationDelay = `${i * 0.02}s`;
-            card.style.padding = "10px 16px";
-            card.style.display = "flex";
-            card.style.justifyContent = "space-between";
-            card.style.alignItems = "center";
-            card.innerHTML = `
-                <span style="font-family: monospace; font-size: 0.95rem; user-select: all;">${esc(acc.email)}</span>
-                <button class="copy-btn" title="Copy Email" onclick="copyText('${esc(acc.email)}', this)">📋 Copy</button>
-            `;
-            container.appendChild(card);
-        });
     };
 }
 
@@ -236,7 +277,7 @@ async function loadAdminAccounts() {
         card.style.alignItems = "center";
         card.innerHTML = `
             <span style="font-family: monospace; font-size: 0.9rem;">${esc(acc.email)}</span>
-            <button class="btn btn-delete" style="min-height: auto; padding: 4px 8px;" onclick="deleteAccount(${acc.id})">Delete</button>
+            <button class="btn btn-delete" style="min-height: auto; padding: 4px 8px;" onclick="deleteAccount(${acc.id}, this)">Delete</button>
         `;
         container.appendChild(card);
     });
@@ -256,43 +297,63 @@ if (accountForm) {
     accountForm.onsubmit = async (e) => {
         e.preventDefault();
 
+        const btn = accountForm.querySelector('button[type="submit"]');
         const emails = document.getElementById("bulkEmails").value;
         const adminPwd = document.getElementById("adminPassword").value;
 
         if (!adminPwd) return alert("Enter Admin Password at the top first!");
 
-        const res = await fetch("/add-account", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ emails, password: adminPwd })
-        });
+        setLoading(btn, true);
 
-        if (res.status === 401) return alert("Wrong Admin Password");
+        try {
+            const res = await fetch("/add-account", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ emails, password: adminPwd })
+            });
 
-        const data = await res.json();
-        alert(`Successfully added ${data.count} emails!`);
-
-        accountForm.reset();
-        loadAdminAccounts();
+            if (res.status === 401) {
+                alert("Wrong Admin Password");
+            } else if (res.status === 500) {
+                alert("Server error — checking database connection.");
+            } else {
+                const data = await res.json();
+                alert(`Successfully added ${data.count} emails!`);
+                accountForm.reset();
+                await loadAdminAccounts();
+            }
+        } finally {
+            setLoading(btn, false);
+        }
     };
 }
 
 // ===== DELETE EMAIL =====
-async function deleteAccount(id) {
+async function deleteAccount(id, btn) {
     const password = document.getElementById("adminPassword").value;
     if (!password) return alert("Enter Admin Password at the top first!");
 
     if (!confirm("Delete this email?")) return;
 
-    const res = await fetch(`/delete-account/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password })
-    });
+    setLoading(btn, true);
 
-    if (res.status === 401) return alert("Wrong password");
+    try {
+        const res = await fetch(`/delete-account/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+        });
 
-    loadAdminAccounts();
+        if (res.status === 401) {
+            alert("Wrong password");
+            setLoading(btn, false);
+            return;
+        }
+
+        await loadAdminAccounts();
+    } catch (e) {
+        setLoading(btn, false);
+    }
 }
 
 // ===== HELPERS =====

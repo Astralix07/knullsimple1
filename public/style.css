@@ -265,6 +265,7 @@ body {
     margin-top: 4px;
 }
 
+/* ===== BUTTONS ===== */
 .btn {
     font-family: inherit;
     font-size: 0.78rem;
@@ -275,6 +276,68 @@ body {
     cursor: pointer;
     transition: background 0.2s, color 0.2s, border-color 0.2s;
     min-height: 32px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Button Loading State */
+.btn.loading {
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.btn-primary.loading::after {
+    border-top-color: #fff;
+}
+
+.btn-delete.loading::after {
+    border-top-color: var(--danger);
+}
+
+.btn-edit.loading::after {
+    border-top-color: var(--accent);
+}
+
+/* Button Loading State */
+.btn.loading {
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.btn-primary.loading::after {
+    border-top-color: #fff;
+}
+
+.btn-delete.loading::after {
+    border-top-color: var(--danger);
+}
+
+.btn-edit.loading::after {
+    border-top-color: var(--accent);
 }
 
 .btn-edit {

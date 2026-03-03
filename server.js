@@ -118,17 +118,19 @@ app.post("/add-account", async (req, res) => {
     // Split by comma, newline, or space, filter out empties, and insert
     const emailArray = emails.split(/[\n, ]+/).map(e => e.trim()).filter(e => e.length > 0);
 
-    // Insert to DB using a transaction-like approach for Turso
-    const stmts = emailArray.map(email => ({
-        sql: "INSERT INTO accounts (email) VALUES (?)",
-        args: [email]
-    }));
-
-    if (stmts.length > 0) {
-        await db.batch(stmts, "write");
+    try {
+        // Insert to DB (looping is safer for parameterized queries in basic libsql)
+        for (const email of emailArray) {
+            await db.execute({
+                sql: "INSERT INTO accounts (email) VALUES (?)",
+                args: [email]
+            });
+        }
+        res.json({ success: true, count: emailArray.length });
+    } catch (err) {
+        console.error("Failed to insert bulk emails:", err);
+        res.status(500).json({ error: "Database insertion failed" });
     }
-
-    res.json({ success: true, count: stmts.length });
 });
 
 app.delete("/delete-account/:id", async (req, res) => {
