@@ -27,6 +27,11 @@ const db = createClient({
     );
   `);
 
+    // Add image column if it doesn't exist yet (safe migration)
+    try {
+        await db.execute(`ALTER TABLE apps ADD COLUMN image TEXT;`);
+    } catch (_) { /* column already exists */ }
+
     await db.execute(`
     CREATE TABLE IF NOT EXISTS accounts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,14 +60,14 @@ app.get("/apps", async (req, res) => {
 });
 
 app.post("/add", async (req, res) => {
-    const { name, description, link, password } = req.body;
+    const { name, description, link, image, password } = req.body;
 
     if (password !== process.env.ADMIN_PASSWORD)
         return res.status(401).json({ error: "Unauthorized" });
 
     await db.execute({
-        sql: "INSERT INTO apps (name, description, link) VALUES (?, ?, ?)",
-        args: [name, description, link],
+        sql: "INSERT INTO apps (name, description, link, image) VALUES (?, ?, ?, ?)",
+        args: [name, description, link, image || null],
     });
 
     res.json({ success: true });
@@ -83,14 +88,14 @@ app.delete("/delete/:id", async (req, res) => {
 });
 
 app.put("/edit/:id", async (req, res) => {
-    const { name, description, link, password } = req.body;
+    const { name, description, link, image, password } = req.body;
 
     if (password !== process.env.ADMIN_PASSWORD)
         return res.status(401).json({ error: "Unauthorized" });
 
     await db.execute({
-        sql: "UPDATE apps SET name = ?, description = ?, link = ? WHERE id = ?",
-        args: [name, description, link, req.params.id],
+        sql: "UPDATE apps SET name = ?, description = ?, link = ?, image = ? WHERE id = ?",
+        args: [name, description, link, image || null, req.params.id],
     });
 
     res.json({ success: true });

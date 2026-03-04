@@ -41,6 +41,7 @@ async function loadApps() {
         card.className = "app-card";
         card.style.animationDelay = `${i * 0.04}s`;
         card.innerHTML = `
+            ${app.image ? `<img src="${app.image}" alt="${app.name}" class="app-card-img" onerror="this.style.display='none'">` : ""}
             <h3>${app.name}</h3>
             <p>${app.description || "No description provided."}</p>
             <a class="btn-download" href="${getDirectLink(app.link)}" target="_blank" rel="noopener">Download</a>
@@ -70,10 +71,11 @@ async function loadAdminApps() {
         card.className = "app-card";
         card.style.animationDelay = `${i * 0.04}s`;
         card.innerHTML = `
+            ${app.image ? `<img src="${app.image}" alt="${app.name}" class="app-card-img" onerror="this.style.display='none'">` : ""}
             <h3>${app.name}</h3>
             <p>${app.description || "No description."}</p>
             <div class="card-actions">
-                <button class="btn btn-edit" onclick="editApp(${app.id}, '${esc(app.name)}', '${esc(app.description)}', '${esc(app.link)}')">Edit</button>
+                <button class="btn btn-edit" onclick="editApp(${app.id}, '${esc(app.name)}', '${esc(app.description)}', '${esc(app.link)}', '${esc(app.image)}')">Edit</button>
                 <button class="btn btn-delete" onclick="deleteApp(${app.id})">Delete</button>
             </div>
         `;
@@ -175,6 +177,7 @@ if (form) {
         const name = document.getElementById("name").value;
         const description = document.getElementById("description").value;
         const link = document.getElementById("link").value;
+        const image = document.getElementById("image").value;
         const password = document.getElementById("adminPassword").value;
 
         const url = id ? `/edit/${id}` : `/add`;
@@ -184,7 +187,7 @@ if (form) {
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, description, link, password })
+                body: JSON.stringify({ name, description, link, image, password })
             });
 
             if (res.status === 401) {
@@ -201,11 +204,12 @@ if (form) {
 }
 
 // ===== EDIT APP =====
-function editApp(id, name, description, link) {
+function editApp(id, name, description, link, image) {
     document.getElementById("appId").value = id;
     document.getElementById("name").value = name;
     document.getElementById("description").value = description;
     document.getElementById("link").value = link;
+    document.getElementById("image").value = image || "";
     document.getElementById("appForm").querySelector('button[type="submit"]').textContent = "Update App";
     document.getElementById("appForm").scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -315,7 +319,7 @@ window.copyAllEmails = async (btn) => {
         await customAlert("There are no emails to copy yet.", "Empty Vault");
         return;
     }
-    navigator.clipboard.writeText(window.allEmails.join("\\n"));
+    navigator.clipboard.writeText(window.allEmails.join("\n"));
     const old = btn.innerText;
     btn.innerText = "Copied " + window.allEmails.length + " emails! ✓";
     setTimeout(() => btn.innerText = old, 2000);

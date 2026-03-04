@@ -183,6 +183,17 @@ body {
     gap: 12px;
 }
 
+/* ===== APP CARD IMAGE ===== */
+.app-card-img {
+    display: block;
+    width: calc(100% + 32px);
+    margin: -16px -16px 12px -16px;
+    height: 140px;
+    object-fit: cover;
+    object-position: center;
+    border-bottom: 1px solid var(--border);
+}
+
 /* ===== APP CARDS ===== */
 .app-card {
     background: var(--card);
