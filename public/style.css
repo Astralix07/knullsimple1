@@ -183,6 +183,59 @@ body {
     gap: 12px;
 }
 
+/* ===== STATS BAR ===== */
+.stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-item {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stat-item strong {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.stat-item:hover {
+    background: var(--card-hover);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.stat-item.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.stat-item.active strong {
+    color: #fff;
+}
+
+/* Hide rows dynamically */
+.app-card.hidden {
+    display: none !important;
+}
+
 /* ===== APP CARD IMAGE ===== */
 .app-card-img {
     width: 60px;
@@ -617,4 +670,26 @@ input[type="password"]:focus {
         width: 95%;
         padding: 18px;
     }
+}
+
+/* ===== FOOTER HERO ===== */
+.footer-hero {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.footer-hero:hover {
+    opacity: 1;
+}
+
+.hero-image {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
 }

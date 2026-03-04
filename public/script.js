@@ -289,6 +289,8 @@ if (accountsLogin) {
             document.getElementById("accountsLogin").style.display = "none";
             document.getElementById("accountsContainer").style.display = "block";
 
+            renderStats(window.allEmails, document.getElementById("accountStats"), "accounts");
+
             container.innerHTML = "";
 
             if (data.length === 0) {
@@ -305,7 +307,7 @@ if (accountsLogin) {
                 card.style.justifyContent = "space-between";
                 card.style.alignItems = "center";
                 card.innerHTML = `
-                    <span style="font-family: monospace; font-size: 0.95rem; user-select: all;">${esc(acc.email)}</span>
+                    <span style="font-family: monospace; font-size: 0.95rem; user-select: all; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">${esc(acc.email)}</span>
                     <button class="copy-btn" title="Copy Email" onclick="copyText('${esc(acc.email)}', this)">📋 Copy</button>
                 `;
                 container.appendChild(card);
@@ -352,6 +354,9 @@ async function loadAdminAccounts() {
     }
 
     const data = await res.json();
+    const emails = data.map(acc => acc.email);
+    renderStats(emails, document.getElementById("adminAccountStats"), "adminAccounts");
+
     container.innerHTML = "";
 
     if (data.length === 0) {
@@ -368,7 +373,7 @@ async function loadAdminAccounts() {
         card.style.justifyContent = "space-between";
         card.style.alignItems = "center";
         card.innerHTML = `
-            <span style="font-family: monospace; font-size: 0.9rem;">${esc(acc.email)}</span>
+            <span style="font-family: monospace; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">${esc(acc.email)}</span>
             <button class="btn btn-delete" style="min-height: auto; padding: 4px 8px;" onclick="deleteAccount(${acc.id}, this)">Delete</button>
         `;
         container.appendChild(card);
@@ -456,6 +461,83 @@ async function deleteAccount(id, btn) {
 }
 
 // ===== HELPERS =====
+function renderStats(emails, container, gridId) {
+    if (!container) return;
+
+    if (emails.length === 0) {
+        container.style.display = "none";
+        return;
+    }
+
+    const stats = {
+        total: emails.length,
+        gmail: 0,
+        yahoo: 0,
+        outlook: 0,
+        proton: 0,
+        other: 0
+    };
+
+    emails.forEach(email => {
+        const lower = email.toLowerCase();
+        if (lower.includes("@gmail.com")) stats.gmail++;
+        else if (lower.includes("@yahoo.com") || lower.includes("@ymail.com")) stats.yahoo++;
+        else if (lower.includes("@outlook.com") || lower.includes("@hotmail.com") || lower.includes("@live.com")) stats.outlook++;
+        else if (lower.includes("@proton.me") || lower.includes("@protonmail.com")) stats.proton++;
+        else stats.other++;
+    });
+
+    container.style.display = "flex";
+    container.innerHTML = `
+        <div class="stat-item active" data-filter="total">Total: <strong>${stats.total}</strong></div>
+        <div class="stat-item" data-filter="gmail">Gmail: <strong>${stats.gmail}</strong></div>
+        <div class="stat-item" data-filter="yahoo">Yahoo: <strong>${stats.yahoo}</strong></div>
+        <div class="stat-item" data-filter="outlook">Outlook: <strong>${stats.outlook}</strong></div>
+        <div class="stat-item" data-filter="proton">Proton: <strong>${stats.proton}</strong></div>
+        ${stats.other > 0 ? `<div class="stat-item" data-filter="other">Other: <strong>${stats.other}</strong></div>` : ""}
+    `;
+
+    // Filter Logic
+    const items = container.querySelectorAll(".stat-item");
+    items.forEach(item => {
+        item.onclick = () => {
+            // Toggle active visual state
+            items.forEach(i => i.classList.remove("active"));
+            item.classList.add("active");
+
+            const filter = item.getAttribute("data-filter");
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+
+            // Show/Hide cards based on filter
+            const cards = grid.querySelectorAll(".app-card");
+            cards.forEach(card => {
+                const emailSpan = card.querySelector("span");
+                if (!emailSpan) return;
+
+                const email = emailSpan.textContent.toLowerCase();
+                let show = false;
+
+                if (filter === "total") show = true;
+                else if (filter === "gmail" && email.includes("@gmail.com")) show = true;
+                else if (filter === "yahoo" && (email.includes("@yahoo.com") || email.includes("@ymail.com"))) show = true;
+                else if (filter === "outlook" && (email.includes("@outlook.com") || email.includes("@hotmail.com") || email.includes("@live.com"))) show = true;
+                else if (filter === "proton" && (email.includes("@proton.me") || email.includes("@protonmail.com"))) show = true;
+                else if (filter === "other" &&
+                    !email.includes("@gmail.com") &&
+                    !email.includes("@yahoo.com") && !email.includes("@ymail.com") &&
+                    !email.includes("@outlook.com") && !email.includes("@hotmail.com") && !email.includes("@live.com") &&
+                    !email.includes("@proton.me") && !email.includes("@protonmail.com")) {
+                    show = true;
+                }
+
+                if (show) card.classList.remove("hidden");
+                else card.classList.add("hidden");
+            });
+        };
+    });
+}
+
 function esc(str) {
     if (str === null || str === undefined) return "";
     return String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
