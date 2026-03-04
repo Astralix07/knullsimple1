@@ -43,7 +43,7 @@ async function loadApps() {
         card.innerHTML = `
             <h3>${app.name}</h3>
             <p>${app.description || "No description provided."}</p>
-            <a class="btn-download" href="${app.link}" target="_blank" rel="noopener">Download</a>
+            <a class="btn-download" href="${getDirectLink(app.link)}" target="_blank" rel="noopener">Download</a>
         `;
         container.appendChild(card);
     });
@@ -451,4 +451,22 @@ async function deleteAccount(id, btn) {
 function esc(str) {
     if (str === null || str === undefined) return "";
     return String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Convert Google Drive share links to direct download links.
+// &confirm=t bypasses the virus-scan warning page for executables.
+function getDirectLink(url) {
+    if (!url) return url;
+    // Format: https://drive.google.com/file/d/FILE_ID/view...
+    const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileMatch) {
+        return `https://drive.google.com/uc?export=download&confirm=t&id=${fileMatch[1]}`;
+    }
+    // Format: https://drive.google.com/open?id=FILE_ID
+    const openMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+    if (openMatch) {
+        return `https://drive.google.com/uc?export=download&confirm=t&id=${openMatch[1]}`;
+    }
+    // Already a direct link or non-Drive URL — return as-is
+    return url;
 }
