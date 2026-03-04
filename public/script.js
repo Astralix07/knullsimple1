@@ -200,6 +200,16 @@ if (form) {
     };
 }
 
+// ===== EDIT APP =====
+function editApp(id, name, description, link) {
+    document.getElementById("appId").value = id;
+    document.getElementById("name").value = name;
+    document.getElementById("description").value = description;
+    document.getElementById("link").value = link;
+    document.getElementById("appForm").querySelector('button[type="submit"]').textContent = "Update App";
+    document.getElementById("appForm").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 // ===== DELETE APP =====
 async function deleteApp(id, btn) {
     const password = document.getElementById("adminPassword").value;
