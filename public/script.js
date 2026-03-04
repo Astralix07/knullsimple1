@@ -42,9 +42,11 @@ async function loadApps() {
         card.style.animationDelay = `${i * 0.04}s`;
         card.innerHTML = `
             ${app.image ? `<img src="${app.image}" alt="${app.name}" class="app-card-img" onerror="this.style.display='none'">` : ""}
-            <h3>${app.name}</h3>
-            <p>${app.description || "No description provided."}</p>
-            <a class="btn-download" href="${getDirectLink(app.link)}" target="_blank" rel="noopener">Download</a>
+            <div class="app-card-body">
+                <h3>${app.name}</h3>
+                <p>${app.description || "No description provided."}</p>
+                <a class="btn-download" href="${getDirectLink(app.link)}" target="_blank" rel="noopener">Download</a>
+            </div>
         `;
         container.appendChild(card);
     });
@@ -72,11 +74,13 @@ async function loadAdminApps() {
         card.style.animationDelay = `${i * 0.04}s`;
         card.innerHTML = `
             ${app.image ? `<img src="${app.image}" alt="${app.name}" class="app-card-img" onerror="this.style.display='none'">` : ""}
-            <h3>${app.name}</h3>
-            <p>${app.description || "No description."}</p>
-            <div class="card-actions">
-                <button class="btn btn-edit" onclick="editApp(${app.id}, '${esc(app.name)}', '${esc(app.description)}', '${esc(app.link)}', '${esc(app.image)}')">Edit</button>
-                <button class="btn btn-delete" onclick="deleteApp(${app.id})">Delete</button>
+            <div class="app-card-body">
+                <h3>${app.name}</h3>
+                <p>${app.description || "No description."}</p>
+                <div class="card-actions">
+                    <button class="btn btn-edit" onclick="editApp(${app.id}, '${esc(app.name)}', '${esc(app.description)}', '${esc(app.link)}', '${esc(app.image)}')">Edit</button>
+                    <button class="btn btn-delete" onclick="deleteApp(${app.id})">Delete</button>
+                </div>
             </div>
         `;
         container.appendChild(card);
