@@ -11,52 +11,55 @@
 
 <body>
 
+    <div class="bg-aurora"></div>
+
     <header class="main-header">
         <div class="header-left">KNULL</div>
         <div class="header-center">
-            <div class="ticker-track">
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <button id="themeToggle" title="Toggle theme">🌙</button>
-            <a href="/">Apps</a>
-            <a href="/admin">Admin</a>
+            <p class="header-warning">⚠ This is a private platform. Do not share or misuse the content.</p>
         </div>
     </header>
 
-    <div class="page-content">
-        <div class="page-title">Accounts Vault</div>
+    <div class="layout-wrapper">
+        <div class="page-content">
+            <div class="page-title">Accounts Vault</div>
 
-        <!-- Password Prompt -->
-        <div id="accountsLogin" class="card" style="max-width: 400px; margin: 40px auto; text-align: center;">
-            <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">
-                Enter admin password to decrypt accounts.
-            </p>
-            <form id="accountsAuthForm">
-                <input type="password" id="viewPassword" placeholder="Admin Password" required
-                    style="margin-bottom: 12px;">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Unlock Accounts</button>
-            </form>
-        </div>
-
-        <!-- Accounts Grid (Hidden until auth) -->
-        <div id="accountsContainer" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.2rem; color: var(--text);">Saved Emails</h2>
-                <button id="copyAllBtn" class="btn btn-primary" onclick="copyAllEmails(this)">Copy All Emails</button>
+            <!-- Password Prompt -->
+            <div id="accountsLogin" class="card" style="max-width: 400px;">
+                <p style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">
+                    Enter admin password to decrypt accounts.
+                </p>
+                <form id="accountsAuthForm">
+                    <input type="password" id="viewPassword" placeholder="Admin Password" required
+                        style="margin-bottom: 12px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Unlock Accounts</button>
+                </form>
             </div>
 
-            <div id="accountStats" class="stats-bar" style="display: none;"></div>
+            <!-- Accounts Grid (Hidden until auth) -->
+            <div id="accountsContainer" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 1.1rem; color: var(--text); font-weight: 700;">Saved Emails</h2>
+                    <button id="copyAllBtn" class="btn btn-primary" onclick="copyAllEmails(this)">Copy All
+                        Emails</button>
+                </div>
 
-            <div id="loadingAccounts" class="loader-container">
-                <div class="loader"></div>
+                <div id="accountStats" class="stats-bar" style="display: none;"></div>
+
+                <div id="loadingAccounts" class="loader-container">
+                    <div class="loader"></div>
+                </div>
+                <div id="accounts" class="grid"></div>
             </div>
-            <div id="accounts" class="grid"></div>
         </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-label">Navigate</div>
+            <a href="/">Apps</a>
+            <a href="/admin">Admin</a>
+            <div class="sidebar-label">Settings</div>
+            <button id="themeToggle" title="Toggle theme">🌙 Theme</button>
+        </aside>
     </div>
 
     <script src="script.js"></script>

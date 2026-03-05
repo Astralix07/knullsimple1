@@ -11,31 +11,33 @@
 
 <body>
 
+    <div class="bg-aurora"></div>
+
     <header class="main-header">
         <div class="header-left">KNULL</div>
         <div class="header-center">
-            <div class="ticker-track">
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-                <p>This is a private platform. Please avoid sharing or misusing the content.</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <button id="themeToggle" title="Toggle theme">🌙</button>
-            <a href="/accounts">Accounts</a>
-            <a href="/admin">Admin</a>
+            <p class="header-warning">⚠ This is a private platform. Do not share or misuse the content.</p>
         </div>
     </header>
 
-    <div class="page-content">
-        <div class="page-title">App Vault</div>
+    <div class="layout-wrapper">
+        <div class="page-content">
+            <div class="page-title">App Vault</div>
 
-        <div id="loading" class="loader-container">
-            <div class="loader"></div>
+            <div id="loading" class="loader-container">
+                <div class="loader"></div>
+            </div>
+
+            <div id="apps" class="grid"></div>
         </div>
 
-        <div id="apps" class="grid"></div>
+        <aside class="sidebar">
+            <div class="sidebar-label">Navigate</div>
+            <a href="/accounts">Accounts</a>
+            <a href="/admin">Admin</a>
+            <div class="sidebar-label">Settings</div>
+            <button id="themeToggle" title="Toggle theme">🌙 Theme</button>
+        </aside>
     </div>
 
     <script src="script.js"></script>
